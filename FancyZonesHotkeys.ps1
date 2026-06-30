@@ -187,6 +187,25 @@ function Get-FancyZonesData {
     }
 }
 
+function ConvertTo-ConfigObject {
+    param($Value)
+
+    if ($Value -is [System.Collections.IDictionary]) {
+        $result = [ordered]@{}
+        foreach ($key in $Value.Keys) {
+            $result[[string]$key] = ConvertTo-ConfigObject -Value $Value[$key]
+        }
+
+        return [pscustomobject]$result
+    }
+
+    if ($Value -is [System.Collections.IEnumerable] -and $Value -isnot [string]) {
+        return @($Value | ForEach-Object { ConvertTo-ConfigObject -Value $_ })
+    }
+
+    $Value
+}
+
 function New-SampleConfig {
     param([Parameter(Mandatory)] [string]$Path)
 
@@ -1018,7 +1037,7 @@ function Get-Config {
     }
 
     $rawContent = Get-Content -LiteralPath $Path -Raw
-    $config = ConvertFrom-Yaml $rawContent
+    $config = ConvertTo-ConfigObject -Value (ConvertFrom-Yaml $rawContent)
     
     if (-not $config.presets -or $config.presets.Count -eq 0) {
         throw "No presets were found in $Path"

@@ -37,6 +37,8 @@ using System.IO;
 
 [assembly: System.Reflection.AssemblyTitle("FancyZonesHotkeys")]
 [assembly: System.Reflection.AssemblyProduct("FancyZonesHotkeys")]
+[assembly: System.Reflection.AssemblyVersion("1.0.0.0")]
+[assembly: System.Reflection.AssemblyFileVersion("1.0.0.0")]
 
 namespace FancyZonesHotkeysLauncher
 {

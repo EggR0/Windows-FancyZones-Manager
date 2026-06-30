@@ -77,7 +77,7 @@ The simplest distribution format for this project is a portable ZIP with these f
 Recommended asset name:
 
 ```text
-FancyZonesHotkeyBridge-v0.1.0.zip
+FancyZonesHotkeyBridge-v1.0.0.zip
 ```
 
 That gives users a very clear path:
