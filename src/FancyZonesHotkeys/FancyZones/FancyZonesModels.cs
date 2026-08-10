@@ -105,5 +105,8 @@ namespace FancyZonesHotkeys.FancyZones
 
         [JsonPropertyName("type")]
         public string Type { get; set; } = "";
+
+        [JsonPropertyName("zone-count")]
+        public int ZoneCount { get; set; }
     }
 }

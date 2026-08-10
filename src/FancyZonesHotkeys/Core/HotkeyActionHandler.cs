@@ -111,44 +111,53 @@ namespace FancyZonesHotkeys.Core
                 foreach (var monitor in sortedMonitors)
                 {
                     // Convert native monitor name to string that might match PowerToys ID
-                    string monitorIdFallback = monitor.DeviceName.Replace("\\\\.\\", "");
+                    string monitorIdFallback = monitor.DeviceName.Replace("\\\\.\\", "").Replace("DISPLAY", "");
+                    int.TryParse(monitorIdFallback, out int monitorNum);
                     
-                    var appliedLayout = data.AppliedLayouts?.FirstOrDefault(a => 
+                    var appliedLayout = data.AppliedLayouts?.LastOrDefault(a => 
                         a.Device != null && (
                         a.Device.Monitor.Contains(monitor.DeviceName, StringComparison.OrdinalIgnoreCase) ||
-                        a.Device.Monitor.Contains(monitorIdFallback, StringComparison.OrdinalIgnoreCase)
+                        a.Device.MonitorNumber == monitorNum
                     ));
 
                     if (appliedLayout != null)
                     {
+                        int zoneCount = 0;
                         string targetLayoutId = appliedLayout.AppliedLayout.Uuid;
+                        
                         if (appliedLayout.AppliedLayout.Type.Equals("custom", StringComparison.OrdinalIgnoreCase))
                         {
                             var customLayout = data.CustomLayouts?.FirstOrDefault(c => c.Uuid == targetLayoutId);
                             if (customLayout != null)
                             {
-                                int zoneCount = ZoneCalculator.GetZoneCount(customLayout);
-                                for (int i = 1; i <= zoneCount; i++)
-                                {
-                                    string hotkeyStr = $"Alt+{hotkeyCounter}";
-                                    _actionMap[hotkeyStr] = new ActionDefinition
-                                    {
-                                        Hotkey = hotkeyStr,
-                                        Action = "zone",
-                                        Monitor = monitor.DeviceName, // Target specific monitor
-                                        Layout = "@applied",
-                                        Zone = i
-                                    };
-                                    hotkeyCounter++;
-                                }
+                                zoneCount = ZoneCalculator.GetZoneCount(customLayout);
                             }
+                        }
+                        else
+                        {
+                            // For priority-grid, grid, etc.
+                            zoneCount = appliedLayout.AppliedLayout.ZoneCount;
+                        }
+
+                        for (int i = 1; i <= zoneCount; i++)
+                        {
+                            string hotkeyStr = $"Alt+{hotkeyCounter}";
+                            _actionMap[hotkeyStr] = new ActionDefinition
+                            {
+                                Hotkey = hotkeyStr,
+                                Action = "zone",
+                                Monitor = monitor.DeviceName,
+                                Layout = "@applied",
+                                Zone = i
+                            };
+                            hotkeyCounter++;
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to auto-generate hotkeys: {ex.Message}");
+                MessageBox.Show($"Failed to auto-generate hotkeys: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

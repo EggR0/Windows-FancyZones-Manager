@@ -19,7 +19,7 @@ namespace FancyZonesHotkeys.UI
         {
             _actionHandler = actionHandler;
             _contextMenu = new ContextMenuStrip();
-            _configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "preset.yaml");
+            _configPath = Path.Combine(Application.StartupPath, "presets.yaml");
             
             _notifyIcon = new NotifyIcon
             {
@@ -47,7 +47,7 @@ namespace FancyZonesHotkeys.UI
             _contextMenu.Items.Add(titleItem);
             _contextMenu.Items.Add(new ToolStripSeparator());
             
-            _contextMenu.Items.Add("Open Settings (preset.yaml)", null, (s, e) => 
+            _contextMenu.Items.Add("Open Settings (presets.yaml)", null, (s, e) => 
             {
                 if (File.Exists(_configPath))
                 {
@@ -125,13 +125,13 @@ namespace FancyZonesHotkeys.UI
                     }
                     else
                     {
-                        MessageBox.Show("Could not find 'auto-generate-hotkeys' setting in preset.yaml. Please edit it manually.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("Could not find 'auto-generate-hotkeys' setting in presets.yaml. Please edit it manually.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to update preset.yaml:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Failed to update presets.yaml:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

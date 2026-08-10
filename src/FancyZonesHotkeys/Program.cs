@@ -16,7 +16,7 @@ namespace FancyZonesHotkeys
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "preset.yaml");
+            string configPath = Path.Combine(Application.StartupPath, "presets.yaml");
             PresetConfig config;
 
             try
