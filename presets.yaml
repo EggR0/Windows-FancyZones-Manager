@@ -73,6 +73,36 @@ presets:
     placement: preserve-relative
 
   # ----------------------------------------------------
+  # Example: Move window to a specific monitor (e.g. Monitor 2) in Full Screen
+  # ----------------------------------------------------
+  - hotkey: Ctrl+Alt+F
+    action: monitor
+    monitor: 2
+    placement: maximize
+
+  # ----------------------------------------------------
+  # Example: Move window to the center of a specific monitor (e.g. Monitor 1) 
+  # without changing the window size
+  # ----------------------------------------------------
+  - hotkey: Ctrl+Alt+C
+    action: monitor
+    monitor: 1
+    placement: center
+
+  # ----------------------------------------------------
+  # Example: Move window to a specific monitor (e.g. Monitor 2) 
+  # at a specific position (x, y) with a specific size (width, height)
+  # ----------------------------------------------------
+  - hotkey: Ctrl+Alt+M
+    action: monitor
+    monitor: 2
+    placement: custom
+    x: 100
+    y: 100
+    width: 1280
+    height: 720
+
+  # ----------------------------------------------------
   # Example: Map hotkeys to predefined 'targets'
   # ----------------------------------------------------
   - hotkey: Ctrl+Alt+1

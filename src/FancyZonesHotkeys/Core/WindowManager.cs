@@ -45,7 +45,7 @@ namespace FancyZonesHotkeys.Core
             {
                 var windowRect = GetWindowRect(windowHandle);
                 string placement = string.IsNullOrEmpty(definition.Placement) ? "preserve-relative" : definition.Placement;
-                var targetRect = GetMonitorPlacementRect(sourceMonitor, targetMonitor, windowRect, placement);
+                var targetRect = GetMonitorPlacementRect(sourceMonitor, targetMonitor, windowRect, definition);
                 
                 InvokeWindowMove(windowHandle, targetRect.X, targetRect.Y, targetRect.Width, targetRect.Height);
                 Console.WriteLine($"[{definition.Hotkey}] -> monitor {targetMonitor.DisplayNumber} ({targetMonitor.DeviceName}) using {placement} ({targetRect.X}, {targetRect.Y}, {targetRect.Width}x{targetRect.Height})");
@@ -64,8 +64,9 @@ namespace FancyZonesHotkeys.Core
             return new Rectangle(rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top);
         }
 
-        private static Rectangle GetMonitorPlacementRect(MonitorInfo source, MonitorInfo target, Rectangle windowRect, string placement)
+        private static Rectangle GetMonitorPlacementRect(MonitorInfo source, MonitorInfo target, Rectangle windowRect, ActionDefinition def)
         {
+            string placement = string.IsNullOrEmpty(def.Placement) ? "preserve-relative" : def.Placement;
             switch (placement.ToLowerInvariant())
             {
                 case "maximize":
@@ -84,6 +85,12 @@ namespace FancyZonesHotkeys.Core
                     return ZoneCalculator.ClampWindowRectToMonitor(x1, y1, windowRect.Width, windowRect.Height, target);
                 case "top-left":
                     return ZoneCalculator.ClampWindowRectToMonitor(target.WorkArea.Left, target.WorkArea.Top, windowRect.Width, windowRect.Height, target);
+                case "custom":
+                    int customX = target.WorkArea.Left + (def.X ?? 0);
+                    int customY = target.WorkArea.Top + (def.Y ?? 0);
+                    int customW = def.Width ?? windowRect.Width;
+                    int customH = def.Height ?? windowRect.Height;
+                    return ZoneCalculator.ClampWindowRectToMonitor(customX, customY, customW, customH, target);
                 case "preserve-relative":
                 default:
                     double widthRatio = source.WorkArea.Width > 0 ? windowRect.Width / (double)source.WorkArea.Width : 1.0;
@@ -123,5 +130,9 @@ namespace FancyZonesHotkeys.Core
         public string Layout { get; set; } = "";
         public int Zone { get; set; }
         public string Placement { get; set; } = "";
+        public int? X { get; set; }
+        public int? Y { get; set; }
+        public int? Width { get; set; }
+        public int? Height { get; set; }
     }
 }
