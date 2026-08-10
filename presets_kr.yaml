@@ -1,0 +1,118 @@
+# FancyZones Hotkeys 설정 파일
+# -------------------------------------
+# 참고: 시스템 트레이 메뉴의 "Reload Settings(설정 다시 불러오기)" 
+# 옵션을 사용하면 프로그램을 재시작하지 않고도 이 설정을 다시 불러올 수 있습니다.
+
+settings:
+  # 활성화된 모든 모니터의 전체 구역에 대해 단축키(Alt+1 ~ Alt+N)를 자동으로 생성합니다.
+  # true로 설정하면, 프로그램이 PowerToys 레이아웃을 읽어들여 
+  # 모든 디스플레이의 각 구역마다 순차적으로 단축키를 자동 할당합니다.
+  # 기본값은 false 입니다.
+  auto-generate-hotkeys: false
+
+# 이 곳에 재사용 가능한 레이아웃 타겟을 정의할 수 있습니다.
+targets:
+  - id: left-main
+    action: zone
+    monitor: 1
+    layout: '@applied'
+    zone: 1
+  
+  - id: center-main
+    action: zone
+    monitor: 1
+    layout: '@applied'
+    zone: 2
+    
+  - id: right-main
+    action: zone
+    monitor: 1
+    layout: '@applied'
+    zone: 3
+    
+  - id: quad-top-left
+    action: zone
+    monitor: 2
+    layout: '@applied'
+    zone: 1
+
+# 명시적인 단축키 할당을 정의합니다.
+presets:
+  # ----------------------------------------------------
+  # 예시: 현재 활성화된 모니터의 1번 구역으로 창 스냅하기
+  # ----------------------------------------------------
+  - hotkey: Alt+1
+    action: zone
+    monitor: active
+    layout: '@applied'
+    zone: 1
+    
+  - hotkey: Alt+2
+    action: zone
+    monitor: active
+    layout: '@applied'
+    zone: 2
+    
+  - hotkey: Alt+3
+    action: zone
+    monitor: active
+    layout: '@applied'
+    zone: 3
+
+  # ----------------------------------------------------
+  # 예시: 창을 다음/이전 모니터로 이동하기
+  # ----------------------------------------------------
+  - hotkey: Alt+Shift+Right
+    action: monitor
+    monitor: next
+    placement: preserve-relative
+
+  - hotkey: Alt+Shift+Left
+    action: monitor
+    monitor: previous
+    placement: preserve-relative
+
+  # ----------------------------------------------------
+  # 예시: 창을 특정 모니터(예: 2번 모니터)로 보낸 후 전체 화면으로 꽉 채우기
+  # ----------------------------------------------------
+  - hotkey: Ctrl+Alt+F
+    action: monitor
+    monitor: 2
+    placement: maximize
+
+  # ----------------------------------------------------
+  # 예시: 창을 특정 모니터(예: 1번 모니터)로 보내되, 
+  # 기존 창 크기는 그대로 유지하고 화면의 정중앙에 배치하기
+  # ----------------------------------------------------
+  - hotkey: Ctrl+Alt+C
+    action: monitor
+    monitor: 1
+    placement: center
+
+  # ----------------------------------------------------
+  # 예시: 창을 특정 모니터(예: 2번 모니터)로 보낸 후, 
+  # 내가 지정한 정확한 좌표(x, y)에 원하는 크기(width, height)로 배치하기
+  # ----------------------------------------------------
+  - hotkey: Ctrl+Alt+M
+    action: monitor
+    monitor: 2
+    placement: custom
+    x: 100
+    y: 100
+    width: 1280
+    height: 720
+
+  # ----------------------------------------------------
+  # 예시: 단축키를 미리 정의해둔 'targets(타겟)'에 매핑하기
+  # ----------------------------------------------------
+  - hotkey: Ctrl+Alt+1
+    target: left-main
+    
+  - hotkey: Ctrl+Alt+2
+    target: center-main
+    
+  - hotkey: Ctrl+Alt+3
+    target: right-main
+    
+  - hotkey: Ctrl+Alt+Q
+    target: quad-top-left

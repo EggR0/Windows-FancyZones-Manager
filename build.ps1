@@ -13,7 +13,8 @@ Write-Host "Publishing FancyZonesHotkeys (v2.0.0, .NET 10.0, Self-Contained, Tri
 
 C:\Users\jsp0\AppData\Local\Microsoft\dotnet\dotnet.exe publish $ProjectFile -c Release -r win-x64 --self-contained true -o $PublishDir
 
-Write-Host "Copying presets.yaml to output directory..."
+Write-Host "Copying presets.yaml and presets_kr.yaml to output directory..."
 Copy-Item (Join-Path $PSScriptRoot "presets.yaml") $PublishDir
+Copy-Item (Join-Path $PSScriptRoot "presets_kr.yaml") $PublishDir
 
 Write-Host "Build finished. Output in '$PublishDir'."
