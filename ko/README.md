@@ -35,8 +35,8 @@ FancyZones는 레이아웃 설정에 매우 유용하지만, 많은 사용자가
 
 1. Microsoft PowerToys를 설치하고 모니터에 맞게 FancyZones 커스텀 레이아웃을 설정합니다.
 2. 최신 릴리스 ZIP 파일을 다운로드합니다. **압축을 풀기 전에** `.zip` 파일을 마우스 오른쪽 버튼으로 클릭하고 **속성**을 선택한 뒤, 하단의 **차단 해제(Unblock)**를 선택하고 적용을 클릭합니다. (이렇게 해야 Windows가 내부 스크립트 실행을 차단하지 않습니다).
-3. 원하는 곳에 ZIP 압축을 풀고 `presets.yaml`을 편집하여 단축키를 구성합니다.
-4. `FancyZonesHotkeys.exe` (또는 `Run-FancyZonesHotkeys_kor.bat`)를 실행한 뒤, 창을 선택하고 단축키를 누릅니다.
+3. 원하는 곳에 ZIP 압축을 풀고 `FancyZonesHotkeys.exe`를 한 번 실행합니다. 사용자 설정은 `%APPDATA%\FancyZonesHotkeys\presets.yaml`에 생성됩니다.
+4. 트레이 메뉴에서 설정 파일을 열어 단축키를 편집한 뒤, 설정을 다시 불러오거나 앱을 재시작합니다.
 
 > **Windows SmartScreen 참고**: 이 유틸리티는 값비싼 인증서로 디지털 서명되지 않았기 때문에, 처음 실행 시 파란색 "Windows의 PC 보호" 화면이 나타날 수 있습니다. **추가 정보**를 클릭한 후 **실행**을 누르세요.
 
@@ -48,19 +48,26 @@ FancyZones는 레이아웃 설정에 매우 유용하지만, 많은 사용자가
 
 - `FancyZonesHotkeys.exe`
 - `FancyZonesHotkeys.ps1`
-- `Run-FancyZonesHotkeys_kor.bat`
-- `presets.yaml`
-- `README_kor.md`
-- `QUICKSTART_kor.txt`
-- `Register-Startup_kor.bat`
-- `Unregister-Startup_kor.bat`
+- `en\Run-FancyZonesHotkeys.bat`
+- `en\Register-Startup.bat`
+- `en\Unregister-Startup.bat`
+- `en\README.md`
+- `en\QUICKSTART.txt`
+- `ko\Run-FancyZonesHotkeys.bat`
+- `ko\Register-Startup.bat`
+- `ko\Unregister-Startup.bat`
+- `ko\README.md`
+- `ko\QUICKSTART.txt`
+- `presets.yaml` 첫 실행용 템플릿
 
 설치 및 사용 흐름:
 
 1. ZIP 다운로드
 2. ZIP 압축 해제
-3. `presets.yaml` 편집
-4. `Run-FancyZonesHotkeys_kor.bat` 더블 클릭
+3. `FancyZonesHotkeys.exe`를 한 번 실행하여 `%APPDATA%\FancyZonesHotkeys\presets.yaml` 생성
+4. 트레이 메뉴에서 사용자 설정을 편집하고 다시 불러오기
+
+앱 폴더의 `presets.yaml`은 템플릿입니다. 사용자가 편집하는 설정 파일은 `%APPDATA%` 아래에 저장되어 업데이트나 재설치로 덮어써지지 않습니다.
 
 ## 설정 예시
 

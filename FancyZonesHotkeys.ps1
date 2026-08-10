@@ -20,9 +20,25 @@ if (-not (Get-Module -ListAvailable -Name powershell-yaml)) {
 }
 Import-Module powershell-yaml
 
-if (-not $ConfigPath) {
-    $scriptRoot = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
-    $ConfigPath = Join-Path $scriptRoot 'presets.yaml'
+$script:ConfigPathWasProvided = -not [string]::IsNullOrWhiteSpace($ConfigPath)
+$script:AppRoot = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
+$script:BundledConfigPath = Join-Path $script:AppRoot 'presets.yaml'
+
+if ($script:ConfigPathWasProvided) {
+    if (-not [System.IO.Path]::IsPathRooted($ConfigPath)) {
+        $ConfigPath = Join-Path (Get-Location).Path $ConfigPath
+    }
+}
+else {
+    $configRoot = if ($env:APPDATA) { $env:APPDATA } else { $env:LOCALAPPDATA }
+    if (-not $configRoot) {
+        $configRoot = [Environment]::GetFolderPath([Environment+SpecialFolder]::ApplicationData)
+    }
+    if (-not $configRoot) {
+        $configRoot = $script:AppRoot
+    }
+
+    $ConfigPath = Join-Path (Join-Path $configRoot 'FancyZonesHotkeys') 'presets.yaml'
 }
 
 Add-Type -AssemblyName System.Windows.Forms
@@ -260,6 +276,32 @@ presets:
 '@
 
     Set-Content -LiteralPath $Path -Value $sample -Encoding UTF8
+}
+
+function Initialize-ConfigFile {
+    param(
+        [Parameter(Mandatory)] [string]$Path,
+        [string]$TemplatePath
+    )
+
+    if (Test-Path -LiteralPath $Path) {
+        return
+    }
+
+    $parent = Split-Path -Parent $Path
+    if ($parent -and -not (Test-Path -LiteralPath $parent)) {
+        New-Item -ItemType Directory -Path $parent -Force | Out-Null
+    }
+
+    if ($TemplatePath -and
+        (Test-Path -LiteralPath $TemplatePath) -and
+        ([System.IO.Path]::GetFullPath($TemplatePath) -ne [System.IO.Path]::GetFullPath($Path))) {
+        Copy-Item -LiteralPath $TemplatePath -Destination $Path
+        return
+    }
+
+    Write-Warning "Config file not found. Creating a sample at $Path"
+    New-SampleConfig -Path $Path
 }
 
 function Get-HotkeyDefinition {
@@ -1031,10 +1073,8 @@ function Show-PresetPreview {
 function Get-Config {
     param([Parameter(Mandatory)] [string]$Path)
 
-    if (-not (Test-Path -LiteralPath $Path)) {
-        Write-Warning "Config file not found. Creating a sample at $Path"
-        New-SampleConfig -Path $Path
-    }
+    $templatePath = if ($script:ConfigPathWasProvided) { $null } else { $script:BundledConfigPath }
+    Initialize-ConfigFile -Path $Path -TemplatePath $templatePath
 
     $rawContent = Get-Content -LiteralPath $Path -Raw
     $config = ConvertTo-ConfigObject -Value (ConvertFrom-Yaml $rawContent)

@@ -1,8 +1,11 @@
 # FancyZonesHotkeys 빠른 시작
 
 1. Microsoft PowerToys를 설치하고 FancyZones 레이아웃을 설정합니다.
-2. `presets.yaml` 파일을 편집하여 단축키와 대상 화면/영역을 정의합니다.
-3. `FancyZonesHotkeys.exe` (또는 `Run-FancyZonesHotkeys_kor.bat`)를 실행합니다.
+2. `FancyZonesHotkeys.exe` (또는 `ko\Run-FancyZonesHotkeys.bat`)를 한 번 실행합니다.
+3. `%APPDATA%\FancyZonesHotkeys\presets.yaml` 파일을 편집하여 단축키와 대상 화면/영역을 정의합니다.
+4. 트레이 메뉴의 "설정 다시 불러오기"를 누르거나 앱을 다시 시작합니다.
+
+앱 폴더 옆의 `presets.yaml`은 첫 실행용 템플릿입니다. 개인 설정은 `%APPDATA%` 아래에 저장되므로 업데이트해도 초기화되지 않습니다.
 
 ## 문제 해결
 
@@ -15,5 +18,5 @@
 **해결 방법**: ZIP 파일을 압축 해제하기 전에, `.zip` 파일을 마우스 오른쪽 버튼으로 클릭 -> 속성 -> 맨 아래의 "차단 해제" 확인 -> 적용을 누릅니다. 그런 다음 압축을 풉니다.
 
 ### 시작 프로그램 등록
-Windows 시작 시 단축키 프로그램이 자동으로 실행되도록 하려면 `Register-Startup_kor.bat`를 실행하세요.
-제거하려면 `Unregister-Startup_kor.bat`를 실행하세요.
+Windows 시작 시 단축키 프로그램이 자동으로 실행되도록 하려면 `ko\Register-Startup.bat`를 실행하세요.
+제거하려면 `ko\Unregister-Startup.bat`를 실행하세요.

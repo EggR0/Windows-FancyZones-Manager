@@ -57,8 +57,8 @@ The GIF should show one clear story:
 
 1. Install Microsoft PowerToys and set up FancyZones custom layouts for your monitors.
 2. Download the latest release ZIP. **Before extracting**, right-click the `.zip` file, select **Properties**, check **Unblock** at the bottom, and click Apply. (This prevents Windows from blocking the scripts inside).
-3. Extract the ZIP anywhere, and edit `presets.yaml` to configure your hotkeys.
-4. Run `FancyZonesHotkeys.exe` (or `Run-FancyZonesHotkeys.bat`), then focus a window and press your hotkeys.
+3. Extract the ZIP anywhere and run `FancyZonesHotkeys.exe` once. It creates your user config at `%APPDATA%\FancyZonesHotkeys\presets.yaml`.
+4. Open the tray menu's **Open Config File** item, edit your hotkeys, then reload settings or restart the app.
 
 > **Note on Windows SmartScreen**: Because this utility is not digitally signed with an expensive certificate, Windows may show a blue "Windows protected your PC" screen on first run. Click **More info** and then **Run anyway**.
 
@@ -66,13 +66,21 @@ If you want to move elevated apps such as Task Manager or an admin terminal, run
 
 ## Release ZIP format
 
-The simplest distribution format for this project is a portable ZIP with these files at the top level:
+The portable ZIP contains these top-level files and language folders:
 
+- `FancyZonesHotkeys.exe`
 - `FancyZonesHotkeys.ps1`
-- `Run-FancyZonesHotkeys.bat`
-- `presets.yaml`
-- `README.md`
-- `QUICKSTART.txt`
+- `presets.yaml` as the first-run template
+- `en\Run-FancyZonesHotkeys.bat`
+- `en\Register-Startup.bat`
+- `en\Unregister-Startup.bat`
+- `en\README.md`
+- `en\QUICKSTART.txt`
+- `ko\Run-FancyZonesHotkeys.bat`
+- `ko\Register-Startup.bat`
+- `ko\Unregister-Startup.bat`
+- `ko\README.md`
+- `ko\QUICKSTART.txt`
 
 Recommended asset name:
 
@@ -84,8 +92,10 @@ That gives users a very clear path:
 
 1. Download ZIP
 2. Extract ZIP
-3. Edit `presets.yaml`
-4. Double-click `Run-FancyZonesHotkeys.bat`
+3. Run `FancyZonesHotkeys.exe` once to create `%APPDATA%\FancyZonesHotkeys\presets.yaml`
+4. Edit the user config from the tray menu and reload settings
+
+The bundled `presets.yaml` is a template. User edits live under `%APPDATA%` so app updates or reinstalls do not overwrite them.
 
 ## Example config
 

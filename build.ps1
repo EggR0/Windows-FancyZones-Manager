@@ -98,11 +98,13 @@ Copy-Item -Path (Join-Path $ScriptRoot "en\Register-Startup.bat") -Destination (
 Copy-Item -Path (Join-Path $ScriptRoot "en\Unregister-Startup.bat") -Destination (Join-Path $portableDir "en")
 Copy-Item -Path (Join-Path $ScriptRoot "en\Run-FancyZonesHotkeys.bat") -Destination (Join-Path $portableDir "en") -ErrorAction SilentlyContinue
 Copy-Item -Path (Join-Path $ScriptRoot "en\QUICKSTART.txt") -Destination (Join-Path $portableDir "en") -ErrorAction SilentlyContinue
+Copy-Item -Path (Join-Path $ScriptRoot "en\README.md") -Destination (Join-Path $portableDir "en") -ErrorAction SilentlyContinue
 
 Copy-Item -Path (Join-Path $ScriptRoot "ko\Register-Startup.bat") -Destination (Join-Path $portableDir "ko") -ErrorAction SilentlyContinue
 Copy-Item -Path (Join-Path $ScriptRoot "ko\Unregister-Startup.bat") -Destination (Join-Path $portableDir "ko") -ErrorAction SilentlyContinue
 Copy-Item -Path (Join-Path $ScriptRoot "ko\Run-FancyZonesHotkeys.bat") -Destination (Join-Path $portableDir "ko") -ErrorAction SilentlyContinue
 Copy-Item -Path (Join-Path $ScriptRoot "ko\QUICKSTART.txt") -Destination (Join-Path $portableDir "ko") -ErrorAction SilentlyContinue
+Copy-Item -Path (Join-Path $ScriptRoot "ko\README.md") -Destination (Join-Path $portableDir "ko") -ErrorAction SilentlyContinue
 
 $zipPath = Join-Path $distDir "FancyZonesHotkeys_Portable.zip"
 Compress-Archive -Path "$portableDir\*" -DestinationPath $zipPath -Force
