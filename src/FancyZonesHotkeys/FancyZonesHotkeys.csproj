@@ -13,6 +13,7 @@
     <Product>FancyZones Hotkeys</Product>
     <Description>Global hotkey manager for PowerToys FancyZones.</Description>
     <Copyright>Copyright (c) 2026 EggR0. All rights reserved. Commercial use requires explicit permission.</Copyright>
+    <ApplicationIcon>Resources\AppIcon.ico</ApplicationIcon>
     
     <!-- Self-Contained + Trimming -->
     <SelfContained>true</SelfContained>

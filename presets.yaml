@@ -38,29 +38,58 @@ targets:
 
 # Explicit hotkey assignments.
 presets:
-  # ----------------------------------------------------
-  # Example: Snap window to Zone 1 on the Active Monitor
-  # ----------------------------------------------------
-  - hotkey: Alt+1
-    action: zone
-    monitor: active
-    layout: '@applied'
-    zone: 1
-    
-  - hotkey: Alt+2
-    action: zone
-    monitor: active
-    layout: '@applied'
-    zone: 2
-    
-  - hotkey: Alt+3
-    action: zone
-    monitor: active
-    layout: '@applied'
-    zone: 3
+  # =========================================================================================
+  # [ Available Options Summary ]
+  # =========================================================================================
+  # 1) hotkey: The key combination to trigger the action (e.g., Alt+1, Ctrl+Shift+Right)
+  #
+  # 2) action: The type of operation to perform
+  #    - zone    : Moves the window to a specific zone on a monitor
+  #    - monitor : Moves the window to a specific monitor and sets its placement
+  #
+  # 3) monitor: The target monitor (used for both zone and monitor actions)
+  #    - active   : The monitor where the window currently resides
+  #    - next     : The next monitor in sequence
+  #    - previous : The previous monitor in sequence
+  #    - 1, 2, 3..: A specific monitor number (as seen in Windows Display Settings)
+  #
+  # 4) [ Options for action: zone ]
+  #    - layout : '@applied' (the currently active layout) or a specific layout ID
+  #    - zone   : The zone index to snap the window to (1, 2, 3...)
+  #
+  # 5) [ Options for action: monitor ]
+  #    - placement: How to position the window on the target monitor
+  #        * maximize          : Fully maximize the window on the target monitor
+  #        * fill              : Expand window to match monitor size without actually entering the OS maximize state
+  #        * center            : Place the window in the exact center while preserving its size
+  #        * preserve-size     : Keep the exact window size
+  #        * preserve-relative : Maintain the relative position and scale (Default)
+  #        * top-left          : Move the window to the top-left corner
+  #        * custom            : Use user-defined coordinates and dimensions
+  #            (Requires the following additional properties)
+  #            - x, y, width, height: Pixel coordinates and dimensions
+  # =========================================================================================
 
   # ----------------------------------------------------
-  # Example: Move window to Next/Previous Monitor
+  # Alt+1=왼쪽(#3), Alt+2=가운데(#2), Alt+3=오른쪽(#1)
+  # ----------------------------------------------------
+  - hotkey: Alt+1
+    action: monitor
+    monitor: 3
+    placement: fill
+    
+  - hotkey: Alt+2
+    action: monitor
+    monitor: 2
+    placement: fill
+
+  - hotkey: Alt+3
+    action: monitor
+    monitor: 1
+    placement: fill
+
+  # ----------------------------------------------------
+  # Example 2: Move window to Next/Previous Monitor (maintaining ratio)
   # ----------------------------------------------------
   - hotkey: Alt+Shift+Right
     action: monitor
@@ -73,7 +102,7 @@ presets:
     placement: preserve-relative
 
   # ----------------------------------------------------
-  # Example: Move window to a specific monitor (e.g. Monitor 2) in Full Screen
+  # Example 3: Move window to a specific monitor (e.g., Monitor 2) and Maximize
   # ----------------------------------------------------
   - hotkey: Ctrl+Alt+F
     action: monitor
@@ -81,8 +110,7 @@ presets:
     placement: maximize
 
   # ----------------------------------------------------
-  # Example: Move window to the center of a specific monitor (e.g. Monitor 1) 
-  # without changing the window size
+  # Example 4: Move window to the center of Monitor 1 (preserving size)
   # ----------------------------------------------------
   - hotkey: Ctrl+Alt+C
     action: monitor
@@ -90,8 +118,7 @@ presets:
     placement: center
 
   # ----------------------------------------------------
-  # Example: Move window to a specific monitor (e.g. Monitor 2) 
-  # at a specific position (x, y) with a specific size (width, height)
+  # Example 5: Custom placement on Monitor 2 with specific coordinates
   # ----------------------------------------------------
   - hotkey: Ctrl+Alt+M
     action: monitor
@@ -103,16 +130,10 @@ presets:
     height: 720
 
   # ----------------------------------------------------
-  # Example: Map hotkeys to predefined 'targets'
+  # Example 6: Map hotkeys to predefined 'targets'
   # ----------------------------------------------------
   - hotkey: Ctrl+Alt+1
     target: left-main
-    
-  - hotkey: Ctrl+Alt+2
-    target: center-main
-    
-  - hotkey: Ctrl+Alt+3
-    target: right-main
     
   - hotkey: Ctrl+Alt+Q
     target: quad-top-left

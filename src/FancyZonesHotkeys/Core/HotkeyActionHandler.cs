@@ -26,6 +26,7 @@ namespace FancyZonesHotkeys.Core
         {
             _actionMap.Clear();
             _internalHotkeyMapping.Clear();
+            _hook.UnregisterAll();
 
             var targetMap = new Dictionary<string, Target>();
             if (config.Targets != null)

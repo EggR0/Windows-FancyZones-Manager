@@ -1,3 +1,6 @@
 .agents/
 dist/
 operational-data/
+bin/
+obj/
+*.user

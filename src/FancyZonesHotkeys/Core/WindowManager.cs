@@ -45,10 +45,20 @@ namespace FancyZonesHotkeys.Core
             {
                 var windowRect = GetWindowRect(windowHandle);
                 string placement = string.IsNullOrEmpty(definition.Placement) ? "preserve-relative" : definition.Placement;
-                var targetRect = GetMonitorPlacementRect(sourceMonitor, targetMonitor, windowRect, definition);
                 
-                InvokeWindowMove(windowHandle, targetRect.X, targetRect.Y, targetRect.Width, targetRect.Height);
-                Console.WriteLine($"[{definition.Hotkey}] -> monitor {targetMonitor.DisplayNumber} ({targetMonitor.DeviceName}) using {placement} ({targetRect.X}, {targetRect.Y}, {targetRect.Width}x{targetRect.Height})");
+                if (placement.ToLowerInvariant() == "maximize")
+                {
+                    // Move the window to the target monitor first, then maximize it
+                    InvokeWindowMove(windowHandle, targetMonitor.WorkArea.Left, targetMonitor.WorkArea.Top, 800, 600);
+                    NativeMethods.ShowWindow(windowHandle, NativeMethods.SW_MAXIMIZE);
+                    Console.WriteLine($"[{definition.Hotkey}] -> monitor {targetMonitor.DisplayNumber} maximized");
+                }
+                else
+                {
+                    var targetRect = GetMonitorPlacementRect(sourceMonitor, targetMonitor, windowRect, definition);
+                    InvokeWindowMove(windowHandle, targetRect.X, targetRect.Y, targetRect.Width, targetRect.Height);
+                    Console.WriteLine($"[{definition.Hotkey}] -> monitor {targetMonitor.DisplayNumber} ({targetMonitor.DeviceName}) using {placement} ({targetRect.X}, {targetRect.Y}, {targetRect.Width}x{targetRect.Height})");
+                }
             }
             else
             {
@@ -69,8 +79,9 @@ namespace FancyZonesHotkeys.Core
             string placement = string.IsNullOrEmpty(def.Placement) ? "preserve-relative" : def.Placement;
             switch (placement.ToLowerInvariant())
             {
-                case "maximize":
-                    return target.WorkArea;
+                case "fill":
+                    // Use WorkArea size minus 1px to prevent Windows from auto-snapping into maximized state
+                    return new Rectangle(target.WorkArea.Left, target.WorkArea.Top, target.WorkArea.Width - 1, target.WorkArea.Height - 1);
                 case "center":
                     int w = Math.Min(windowRect.Width, target.WorkArea.Width);
                     int h = Math.Min(windowRect.Height, target.WorkArea.Height);
@@ -113,6 +124,10 @@ namespace FancyZonesHotkeys.Core
             {
                 NativeMethods.ShowWindow(windowHandle, NativeMethods.SW_RESTORE);
             }
+
+            // Two-step move for complex UI frameworks (like Electron/VS Code) to handle DPI changes gracefully
+            uint moveFlags = NativeMethods.SWP_NOZORDER | NativeMethods.SWP_NOACTIVATE | NativeMethods.SWP_NOSIZE | NativeMethods.SWP_SHOWWINDOW;
+            NativeMethods.SetWindowPos(windowHandle, IntPtr.Zero, x, y, 0, 0, moveFlags);
 
             uint flags = NativeMethods.SWP_NOZORDER | NativeMethods.SWP_NOACTIVATE | NativeMethods.SWP_SHOWWINDOW;
             bool result = NativeMethods.SetWindowPos(windowHandle, IntPtr.Zero, x, y, width, height, flags);

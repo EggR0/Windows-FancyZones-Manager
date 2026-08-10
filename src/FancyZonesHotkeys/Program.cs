@@ -36,7 +36,15 @@ namespace FancyZonesHotkeys
                 // Load all hotkeys
                 actionHandler.LoadConfig(config);
 
-                using (var trayIcon = new TrayIconManager(actionHandler))
+                // Log detected monitors for debugging
+                var monitors = MonitorManager.GetAllMonitors();
+                Console.WriteLine($"Detected {monitors.Count} monitor(s):");
+                foreach (var m in monitors)
+                {
+                    Console.WriteLine($"  Display #{m.DisplayNumber} ({m.DeviceName}) | Primary={m.IsPrimary} | Bounds={m.Bounds} | WorkArea={m.WorkArea}");
+                }
+
+                using (var trayIcon = new TrayIconManager(actionHandler, hook))
                 {
                     trayIcon.Initialize(config);
                     Application.Run();

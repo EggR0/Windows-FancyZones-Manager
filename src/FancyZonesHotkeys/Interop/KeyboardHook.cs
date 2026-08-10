@@ -63,12 +63,18 @@ namespace FancyZonesHotkeys.Interop
 
         public event EventHandler<KeyPressedEventArgs>? KeyPressed;
 
-        public void Dispose()
+        public void UnregisterAll()
         {
             for (int i = _currentId; i > 0; i--)
             {
                 NativeMethods.UnregisterHotKey(_window.Handle, i);
             }
+            _currentId = 0;
+        }
+
+        public void Dispose()
+        {
+            UnregisterAll();
             _window.Dispose();
         }
     }

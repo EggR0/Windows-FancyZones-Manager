@@ -20,8 +20,10 @@ namespace FancyZonesHotkeys.Interop
         [DllImport("user32.dll", SetLastError = true)]
         public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
+        public const int SW_MAXIMIZE = 3;
         public const int SW_RESTORE = 9;
 
+        public const uint SWP_NOSIZE = 0x0001;
         public const uint SWP_NOZORDER = 0x0004;
         public const uint SWP_NOACTIVATE = 0x0010;
         public const uint SWP_SHOWWINDOW = 0x0040;

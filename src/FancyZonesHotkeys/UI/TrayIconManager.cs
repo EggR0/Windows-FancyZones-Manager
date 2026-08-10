@@ -5,6 +5,7 @@ using System.IO;
 using System.Windows.Forms;
 using FancyZonesHotkeys.Config;
 using FancyZonesHotkeys.Core;
+using FancyZonesHotkeys.Interop;
 
 namespace FancyZonesHotkeys.UI
 {
@@ -13,17 +14,19 @@ namespace FancyZonesHotkeys.UI
         private readonly NotifyIcon _notifyIcon;
         private readonly ContextMenuStrip _contextMenu;
         private readonly HotkeyActionHandler _actionHandler;
+        private readonly KeyboardHook _hook;
         private readonly string _configPath;
 
-        public TrayIconManager(HotkeyActionHandler actionHandler)
+        public TrayIconManager(HotkeyActionHandler actionHandler, KeyboardHook hook)
         {
             _actionHandler = actionHandler;
+            _hook = hook;
             _contextMenu = new ContextMenuStrip();
             _configPath = Path.Combine(Application.StartupPath, "presets.yaml");
             
             _notifyIcon = new NotifyIcon
             {
-                Icon = SystemIcons.Application,
+                Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath) ?? SystemIcons.Application,
                 ContextMenuStrip = _contextMenu,
                 Text = "FancyZones Hotkeys",
                 Visible = true
@@ -33,7 +36,14 @@ namespace FancyZonesHotkeys.UI
         public void Initialize(PresetConfig config)
         {
             BuildMenu();
-            _notifyIcon.ShowBalloonTip(3000, "FancyZones Hotkeys", "Application started and running in the background.", ToolTipIcon.Info);
+            var timer = new System.Windows.Forms.Timer { Interval = 1000 };
+            timer.Tick += (s, e) =>
+            {
+                timer.Stop();
+                timer.Dispose();
+                _notifyIcon.ShowBalloonTip(3000, "FancyZones Hotkeys", "Application started and running in the background.", ToolTipIcon.None);
+            };
+            timer.Start();
         }
 
         private void BuildMenu()
@@ -90,7 +100,26 @@ namespace FancyZonesHotkeys.UI
             _contextMenu.Items.Add(startupItem);
 
             _contextMenu.Items.Add(new ToolStripSeparator());
-            _contextMenu.Items.Add("Exit", null, (s, e) => Application.Exit());
+            _contextMenu.Items.Add("Exit", null, (s, e) => ExitApplication());
+        }
+
+        private void ExitApplication()
+        {
+            // Unregister all hotkeys first
+            _hook.UnregisterAll();
+
+            // Show exit balloon
+            _notifyIcon.ShowBalloonTip(2000, "FancyZones Hotkeys", "Application has been shut down.", ToolTipIcon.None);
+
+            // Give the balloon time to appear, then exit
+            var exitTimer = new System.Windows.Forms.Timer { Interval = 500 };
+            exitTimer.Tick += (s2, e2) =>
+            {
+                exitTimer.Stop();
+                exitTimer.Dispose();
+                Application.Exit();
+            };
+            exitTimer.Start();
         }
 
         private void ReloadSettings()
@@ -99,7 +128,7 @@ namespace FancyZonesHotkeys.UI
             {
                 var newConfig = ConfigManager.LoadConfig(_configPath);
                 _actionHandler.LoadConfig(newConfig);
-                _notifyIcon.ShowBalloonTip(2000, "FancyZones Hotkeys", "Settings reloaded successfully.", ToolTipIcon.Info);
+                _notifyIcon.ShowBalloonTip(2000, "FancyZones Hotkeys", "Settings reloaded successfully.", ToolTipIcon.None);
             }
             catch (Exception ex)
             {
@@ -152,7 +181,7 @@ namespace FancyZonesHotkeys.UI
                     UseShellExecute = false
                 };
                 Process.Start(startInfo)?.WaitForExit();
-                _notifyIcon.ShowBalloonTip(2000, "FancyZones Hotkeys", "Startup shortcut registered.", ToolTipIcon.Info);
+                _notifyIcon.ShowBalloonTip(2000, "FancyZones Hotkeys", "Startup shortcut registered.", ToolTipIcon.None);
             }
             catch (Exception ex)
             {
@@ -170,7 +199,7 @@ namespace FancyZonesHotkeys.UI
                 if (File.Exists(shortcutPath))
                 {
                     File.Delete(shortcutPath);
-                    _notifyIcon.ShowBalloonTip(2000, "FancyZones Hotkeys", "Startup shortcut removed.", ToolTipIcon.Info);
+                    _notifyIcon.ShowBalloonTip(2000, "FancyZones Hotkeys", "Startup shortcut removed.", ToolTipIcon.None);
                 }
             }
             catch (Exception ex)
