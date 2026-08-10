@@ -9,6 +9,10 @@
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
     <FileVersion>2.0.0.0</FileVersion>
     <Version>2.0.0</Version>
+    <Company>EggR0</Company>
+    <Product>FancyZones Hotkeys</Product>
+    <Description>Global hotkey manager for PowerToys FancyZones.</Description>
+    <Copyright>Copyright (c) 2026 EggR0. All rights reserved. Commercial use requires explicit permission.</Copyright>
     
     <!-- Self-Contained + Trimming -->
     <SelfContained>true</SelfContained>
