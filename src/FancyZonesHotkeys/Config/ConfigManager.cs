@@ -17,6 +17,7 @@ namespace FancyZonesHotkeys.Config
             var yaml = File.ReadAllText(path);
             var deserializer = new DeserializerBuilder()
                 .WithNamingConvention(UnderscoredNamingConvention.Instance)
+                .IgnoreUnmatchedProperties()
                 .Build();
 
             return deserializer.Deserialize<PresetConfig>(yaml);

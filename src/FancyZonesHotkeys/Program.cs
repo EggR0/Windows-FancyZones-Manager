@@ -33,11 +33,8 @@ namespace FancyZonesHotkeys
             {
                 var actionHandler = new HotkeyActionHandler(hook);
                 
-                // Load default preset
-                if (!string.IsNullOrEmpty(config.DefaultPreset) && config.Presets != null && config.Presets.TryGetValue(config.DefaultPreset, out var defaultPreset))
-                {
-                    actionHandler.LoadPreset(defaultPreset);
-                }
+                // Load all hotkeys
+                actionHandler.LoadConfig(config);
 
                 using (var trayIcon = new TrayIconManager(actionHandler))
                 {

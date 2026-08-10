@@ -1,39 +1,56 @@
 using System.Collections.Generic;
 using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
 namespace FancyZonesHotkeys.Config
 {
     public class PresetConfig
     {
-        [YamlMember(Alias = "default_preset")]
-        public string? DefaultPreset { get; set; }
+        [YamlMember(Alias = "targets")]
+        public List<Target>? Targets { get; set; }
 
         [YamlMember(Alias = "presets")]
-        public Dictionary<string, Preset>? Presets { get; set; }
+        public List<Preset>? Presets { get; set; }
+    }
+
+    public class Target
+    {
+        [YamlMember(Alias = "id")]
+        public string? Id { get; set; }
+
+        [YamlMember(Alias = "action")]
+        public string? Action { get; set; }
+
+        [YamlMember(Alias = "monitor")]
+        public string? Monitor { get; set; }
+
+        [YamlMember(Alias = "layout")]
+        public string? Layout { get; set; }
+
+        [YamlMember(Alias = "zone")]
+        public int Zone { get; set; }
     }
 
     public class Preset
     {
-        [YamlMember(Alias = "zones")]
-        public List<Zone>? Zones { get; set; }
-    }
-
-    public class Zone
-    {
         [YamlMember(Alias = "hotkey")]
         public string? Hotkey { get; set; }
 
-        [YamlMember(Alias = "width_percent")]
-        public double WidthPercent { get; set; }
+        [YamlMember(Alias = "action")]
+        public string? Action { get; set; }
 
-        [YamlMember(Alias = "height_percent")]
-        public double HeightPercent { get; set; }
+        [YamlMember(Alias = "target")]
+        public string? TargetId { get; set; }
 
-        [YamlMember(Alias = "x_percent")]
-        public double XPercent { get; set; }
+        [YamlMember(Alias = "monitor")]
+        public string? Monitor { get; set; }
 
-        [YamlMember(Alias = "y_percent")]
-        public double YPercent { get; set; }
+        [YamlMember(Alias = "layout")]
+        public string? Layout { get; set; }
+
+        [YamlMember(Alias = "zone")]
+        public int Zone { get; set; }
+        
+        [YamlMember(Alias = "placement")]
+        public string? Placement { get; set; }
     }
 }

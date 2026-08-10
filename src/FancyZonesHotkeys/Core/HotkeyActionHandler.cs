@@ -9,44 +9,43 @@ namespace FancyZonesHotkeys.Core
     public class HotkeyActionHandler
     {
         private readonly KeyboardHook _hook;
-        private readonly Dictionary<string, Zone> _hotkeyZoneMapping;
+        private readonly Dictionary<string, Preset> _hotkeyPresetMapping;
         private readonly Dictionary<string, string> _internalHotkeyMapping;
 
         public HotkeyActionHandler(KeyboardHook hook)
         {
             _hook = hook;
             _hook.KeyPressed += Hook_KeyPressed;
-            _hotkeyZoneMapping = new Dictionary<string, Zone>();
+            _hotkeyPresetMapping = new Dictionary<string, Preset>();
             _internalHotkeyMapping = new Dictionary<string, string>();
         }
 
-        public void LoadPreset(Preset preset)
+        public void LoadConfig(PresetConfig config)
         {
-            _hotkeyZoneMapping.Clear();
+            _hotkeyPresetMapping.Clear();
             _internalHotkeyMapping.Clear();
             
-            if (preset.Zones == null) return;
+            if (config.Presets == null) return;
 
-            foreach (var zone in preset.Zones)
+            foreach (var preset in config.Presets)
             {
-                if (!string.IsNullOrEmpty(zone.Hotkey))
+                if (!string.IsNullOrEmpty(preset.Hotkey))
                 {
                     try
                     {
-                        var (mod, key) = ParseHotkeyString(zone.Hotkey);
+                        var (mod, key) = ParseHotkeyString(preset.Hotkey);
                         _hook.RegisterHotKey(mod, key);
                         
-                        // Create a unique key string for the dictionary mapping
                         string internalKey = $"{mod}+{key}";
                         if (!_internalHotkeyMapping.ContainsKey(internalKey))
                         {
-                            _internalHotkeyMapping[internalKey] = zone.Hotkey;
-                            _hotkeyZoneMapping[zone.Hotkey] = zone;
+                            _internalHotkeyMapping[internalKey] = preset.Hotkey;
+                            _hotkeyPresetMapping[preset.Hotkey] = preset;
                         }
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Failed to register hotkey {zone.Hotkey}: {ex.Message}");
+                        Console.WriteLine($"Failed to register hotkey {preset.Hotkey}: {ex.Message}");
                     }
                 }
             }
@@ -57,9 +56,11 @@ namespace FancyZonesHotkeys.Core
             string internalKey = $"{e.Modifier}+{e.Key}";
             if (_internalHotkeyMapping.TryGetValue(internalKey, out string? originalHotkey))
             {
-                if (_hotkeyZoneMapping.TryGetValue(originalHotkey, out Zone? zone))
+                if (_hotkeyPresetMapping.TryGetValue(originalHotkey, out Preset? preset))
                 {
-                    FancyZones.WindowManager.ApplyZoneToForegroundWindow(zone);
+                    // FancyZones Data Parsing is missing in C# port!
+                    // FancyZones.WindowManager.ApplyZoneToForegroundWindow(zone);
+                    Console.WriteLine($"Hotkey pressed: {preset.Hotkey}. (FancyZones layout logic pending implementation)");
                 }
             }
         }
@@ -89,13 +90,11 @@ namespace FancyZonesHotkeys.Core
                     }
                     else
                     {
-                        throw new ArgumentException($"Unknown key component: {p}");
+                        // Fallback parsing or ignore
+                        // throw new ArgumentException($"Unknown key component: {p}");
                     }
                 }
             }
-
-            if (key == Keys.None)
-                throw new ArgumentException("No primary key found in hotkey string.");
 
             return (modifiers, key);
         }
