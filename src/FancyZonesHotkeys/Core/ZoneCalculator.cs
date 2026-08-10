@@ -198,5 +198,28 @@ namespace FancyZonesHotkeys.Core
                 safeHeight
             );
         }
+
+        public static int GetZoneCount(CustomLayout layout)
+        {
+            if (layout.Type.Equals("canvas", StringComparison.OrdinalIgnoreCase))
+            {
+                return layout.Info.Zones?.Count ?? 0;
+            }
+            else if (layout.Type.Equals("grid", StringComparison.OrdinalIgnoreCase))
+            {
+                if (layout.Info.CellChildMap == null) return 0;
+                
+                var uniqueZones = new HashSet<int>();
+                foreach (var row in layout.Info.CellChildMap)
+                {
+                    foreach (var cell in row)
+                    {
+                        uniqueZones.Add(cell);
+                    }
+                }
+                return uniqueZones.Count;
+            }
+            return 0;
+        }
     }
 }

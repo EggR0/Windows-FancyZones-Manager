@@ -55,34 +55,84 @@ namespace FancyZonesHotkeys.UI
                 }
             });
 
-            _contextMenu.Items.Add("Reload Settings", null, (s, e) => 
-            {
-                try
-                {
-                    var newConfig = ConfigManager.LoadConfig(_configPath);
-                    _actionHandler.LoadConfig(newConfig);
-                    _notifyIcon.ShowBalloonTip(2000, "FancyZones Hotkeys", "Settings reloaded successfully.", ToolTipIcon.Info);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Failed to reload configuration:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            });
+            _contextMenu.Items.Add("Reload Settings", null, (s, e) => ReloadSettings());
 
             _contextMenu.Items.Add(new ToolStripSeparator());
 
-            _contextMenu.Items.Add("Register Startup", null, (s, e) => 
+            bool isAutoHotkeysEnabled = false;
+            try
             {
-                CreateStartupShortcut();
-            });
+                var config = ConfigManager.LoadConfig(_configPath);
+                isAutoHotkeysEnabled = config.Settings?.AutoGenerateHotkeys == true;
+            }
+            catch { }
 
-            _contextMenu.Items.Add("Unregister Startup", null, (s, e) => 
+            var autoHotkeysItem = new ToolStripMenuItem("Enable Auto-Hotkeys (Alt+1~N)")
             {
-                RemoveStartupShortcut();
-            });
+                CheckOnClick = true,
+                Checked = isAutoHotkeysEnabled
+            };
+            autoHotkeysItem.CheckedChanged += (s, e) => ToggleAutoHotkeys(autoHotkeysItem.Checked);
+            _contextMenu.Items.Add(autoHotkeysItem);
+
+            string startupFolder = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
+            string shortcutPath = Path.Combine(startupFolder, "FancyZones Hotkeys.lnk");
+            var startupItem = new ToolStripMenuItem("Run on Startup")
+            {
+                CheckOnClick = true,
+                Checked = File.Exists(shortcutPath)
+            };
+            startupItem.CheckedChanged += (s, e) => 
+            {
+                if (startupItem.Checked) CreateStartupShortcut();
+                else RemoveStartupShortcut();
+            };
+            _contextMenu.Items.Add(startupItem);
 
             _contextMenu.Items.Add(new ToolStripSeparator());
             _contextMenu.Items.Add("Exit", null, (s, e) => Application.Exit());
+        }
+
+        private void ReloadSettings()
+        {
+            try
+            {
+                var newConfig = ConfigManager.LoadConfig(_configPath);
+                _actionHandler.LoadConfig(newConfig);
+                _notifyIcon.ShowBalloonTip(2000, "FancyZones Hotkeys", "Settings reloaded successfully.", ToolTipIcon.Info);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to reload configuration:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void ToggleAutoHotkeys(bool enable)
+        {
+            try
+            {
+                if (File.Exists(_configPath))
+                {
+                    string content = File.ReadAllText(_configPath);
+                    string target = enable ? "auto-generate-hotkeys: false" : "auto-generate-hotkeys: true";
+                    string replacement = enable ? "auto-generate-hotkeys: true" : "auto-generate-hotkeys: false";
+                    
+                    if (content.Contains(target))
+                    {
+                        content = content.Replace(target, replacement);
+                        File.WriteAllText(_configPath, content);
+                        ReloadSettings();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Could not find 'auto-generate-hotkeys' setting in presets.yaml. Please edit it manually.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to update presets.yaml:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void CreateStartupShortcut()

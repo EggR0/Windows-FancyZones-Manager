@@ -39,53 +39,119 @@ namespace FancyZonesHotkeys.Core
                 }
             }
 
-            if (config.Presets == null) return;
-
-            foreach (var preset in config.Presets)
+            if (config.Settings?.AutoGenerateHotkeys == true)
             {
-                if (string.IsNullOrEmpty(preset.Hotkey)) continue;
+                GenerateAutoHotkeys();
+            }
 
-                var def = new ActionDefinition { Hotkey = preset.Hotkey };
-
-                if (!string.IsNullOrEmpty(preset.TargetId) && targetMap.TryGetValue(preset.TargetId, out var target))
+            if (config.Presets != null)
+            {
+                foreach (var preset in config.Presets)
                 {
-                    def.Action = target.Action ?? "";
-                    def.Monitor = target.Monitor ?? "";
-                    def.Layout = target.Layout ?? "";
-                    def.Zone = target.Zone;
+                    if (string.IsNullOrEmpty(preset.Hotkey)) continue;
+
+                    var def = new ActionDefinition { Hotkey = preset.Hotkey };
+
+                    if (!string.IsNullOrEmpty(preset.TargetId) && targetMap.TryGetValue(preset.TargetId, out var target))
+                    {
+                        def.Action = target.Action ?? "";
+                        def.Monitor = target.Monitor ?? "";
+                        def.Layout = target.Layout ?? "";
+                        def.Zone = target.Zone;
+                    }
+
+                    if (!string.IsNullOrEmpty(preset.Action)) def.Action = preset.Action;
+                    if (!string.IsNullOrEmpty(preset.Monitor)) def.Monitor = preset.Monitor;
+                    if (!string.IsNullOrEmpty(preset.Layout)) def.Layout = preset.Layout;
+                    if (preset.Zone > 0) def.Zone = preset.Zone;
+                    if (!string.IsNullOrEmpty(preset.Placement)) def.Placement = preset.Placement;
+
+                    if (string.IsNullOrEmpty(def.Action))
+                    {
+                        def.Action = def.Zone > 0 ? "zone" : "monitor";
+                    }
+                    if (string.IsNullOrEmpty(def.Monitor))
+                    {
+                        def.Monitor = "active";
+                    }
+
+                    _actionMap[preset.Hotkey] = def;
                 }
+            }
 
-                if (!string.IsNullOrEmpty(preset.Action)) def.Action = preset.Action;
-                if (!string.IsNullOrEmpty(preset.Monitor)) def.Monitor = preset.Monitor;
-                if (!string.IsNullOrEmpty(preset.Layout)) def.Layout = preset.Layout;
-                if (preset.Zone > 0) def.Zone = preset.Zone;
-                if (!string.IsNullOrEmpty(preset.Placement)) def.Placement = preset.Placement;
-
-                if (string.IsNullOrEmpty(def.Action))
-                {
-                    def.Action = def.Zone > 0 ? "zone" : "monitor";
-                }
-                if (string.IsNullOrEmpty(def.Monitor))
-                {
-                    def.Monitor = "active";
-                }
-
-                _actionMap[preset.Hotkey] = def;
-
+            // Finally, register all hotkeys in the map
+            foreach (var kvp in _actionMap)
+            {
                 try
                 {
-                    var (mod, key) = ParseHotkeyString(preset.Hotkey);
+                    var (mod, key) = ParseHotkeyString(kvp.Key);
                     _hook.RegisterHotKey(mod, key);
                     
                     string internalKey = $"{mod}+{key}";
-                    _internalHotkeyMapping[internalKey] = preset.Hotkey;
+                    _internalHotkeyMapping[internalKey] = kvp.Key;
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Failed to register hotkey {preset.Hotkey}: {ex.Message}");
+                    Console.WriteLine($"Failed to register hotkey {kvp.Key}: {ex.Message}");
                 }
             }
         }
+
+        private void GenerateAutoHotkeys()
+        {
+            try
+            {
+                var data = FancyZonesData.Load();
+                var monitors = MonitorManager.GetAllMonitors();
+                // Sort monitors by X coordinate left to right
+                var sortedMonitors = monitors.OrderBy(m => m.WorkArea.Left).ToList();
+
+                int hotkeyCounter = 1;
+
+                foreach (var monitor in sortedMonitors)
+                {
+                    // Convert native monitor name to string that might match PowerToys ID
+                    string monitorIdFallback = monitor.DeviceName.Replace("\\\\.\\", "");
+                    
+                    var appliedLayout = data.AppliedLayouts?.FirstOrDefault(a => 
+                        a.Device != null && (
+                        a.Device.Monitor.Contains(monitor.DeviceName, StringComparison.OrdinalIgnoreCase) ||
+                        a.Device.Monitor.Contains(monitorIdFallback, StringComparison.OrdinalIgnoreCase)
+                    ));
+
+                    if (appliedLayout != null)
+                    {
+                        string targetLayoutId = appliedLayout.AppliedLayout.Uuid;
+                        if (appliedLayout.AppliedLayout.Type.Equals("custom", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var customLayout = data.CustomLayouts?.FirstOrDefault(c => c.Uuid == targetLayoutId);
+                            if (customLayout != null)
+                            {
+                                int zoneCount = ZoneCalculator.GetZoneCount(customLayout);
+                                for (int i = 1; i <= zoneCount; i++)
+                                {
+                                    string hotkeyStr = $"Alt+{hotkeyCounter}";
+                                    _actionMap[hotkeyStr] = new ActionDefinition
+                                    {
+                                        Hotkey = hotkeyStr,
+                                        Action = "zone",
+                                        Monitor = monitor.DeviceName, // Target specific monitor
+                                        Layout = "@applied",
+                                        Zone = i
+                                    };
+                                    hotkeyCounter++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to auto-generate hotkeys: {ex.Message}");
+            }
+        }
+
 
         private void Hook_KeyPressed(object? sender, KeyPressedEventArgs e)
         {

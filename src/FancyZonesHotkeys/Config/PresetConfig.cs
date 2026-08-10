@@ -5,11 +5,20 @@ namespace FancyZonesHotkeys.Config
 {
     public class PresetConfig
     {
+        [YamlMember(Alias = "settings")]
+        public SettingsConfig? Settings { get; set; }
+
         [YamlMember(Alias = "targets")]
         public List<Target>? Targets { get; set; }
 
         [YamlMember(Alias = "presets")]
         public List<Preset>? Presets { get; set; }
+    }
+
+    public class SettingsConfig
+    {
+        [YamlMember(Alias = "auto-generate-hotkeys")]
+        public bool AutoGenerateHotkeys { get; set; }
     }
 
     public class Target
