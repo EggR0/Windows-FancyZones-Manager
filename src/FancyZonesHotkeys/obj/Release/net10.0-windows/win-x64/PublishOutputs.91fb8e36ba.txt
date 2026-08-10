@@ -1,2 +1,0 @@
-D:\Workspace\Windows Centering Manager\dist\FancyZonesHotkeys.pdb
-D:\Workspace\Windows Centering Manager\dist\FancyZonesHotkeys.exe
