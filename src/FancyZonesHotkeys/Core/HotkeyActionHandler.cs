@@ -1,52 +1,88 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 using FancyZonesHotkeys.Config;
 using FancyZonesHotkeys.Interop;
+using FancyZonesHotkeys.FancyZones;
 
 namespace FancyZonesHotkeys.Core
 {
     public class HotkeyActionHandler
     {
         private readonly KeyboardHook _hook;
-        private readonly Dictionary<string, Preset> _hotkeyPresetMapping;
+        private readonly Dictionary<string, ActionDefinition> _actionMap;
         private readonly Dictionary<string, string> _internalHotkeyMapping;
 
         public HotkeyActionHandler(KeyboardHook hook)
         {
             _hook = hook;
             _hook.KeyPressed += Hook_KeyPressed;
-            _hotkeyPresetMapping = new Dictionary<string, Preset>();
+            _actionMap = new Dictionary<string, ActionDefinition>();
             _internalHotkeyMapping = new Dictionary<string, string>();
         }
 
         public void LoadConfig(PresetConfig config)
         {
-            _hotkeyPresetMapping.Clear();
+            _actionMap.Clear();
             _internalHotkeyMapping.Clear();
-            
+
+            var targetMap = new Dictionary<string, Target>();
+            if (config.Targets != null)
+            {
+                foreach (var t in config.Targets)
+                {
+                    if (!string.IsNullOrEmpty(t.Id))
+                    {
+                        targetMap[t.Id] = t;
+                    }
+                }
+            }
+
             if (config.Presets == null) return;
 
             foreach (var preset in config.Presets)
             {
-                if (!string.IsNullOrEmpty(preset.Hotkey))
+                if (string.IsNullOrEmpty(preset.Hotkey)) continue;
+
+                var def = new ActionDefinition { Hotkey = preset.Hotkey };
+
+                if (!string.IsNullOrEmpty(preset.TargetId) && targetMap.TryGetValue(preset.TargetId, out var target))
                 {
-                    try
-                    {
-                        var (mod, key) = ParseHotkeyString(preset.Hotkey);
-                        _hook.RegisterHotKey(mod, key);
-                        
-                        string internalKey = $"{mod}+{key}";
-                        if (!_internalHotkeyMapping.ContainsKey(internalKey))
-                        {
-                            _internalHotkeyMapping[internalKey] = preset.Hotkey;
-                            _hotkeyPresetMapping[preset.Hotkey] = preset;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Failed to register hotkey {preset.Hotkey}: {ex.Message}");
-                    }
+                    def.Action = target.Action ?? "";
+                    def.Monitor = target.Monitor ?? "";
+                    def.Layout = target.Layout ?? "";
+                    def.Zone = target.Zone;
+                }
+
+                if (!string.IsNullOrEmpty(preset.Action)) def.Action = preset.Action;
+                if (!string.IsNullOrEmpty(preset.Monitor)) def.Monitor = preset.Monitor;
+                if (!string.IsNullOrEmpty(preset.Layout)) def.Layout = preset.Layout;
+                if (preset.Zone > 0) def.Zone = preset.Zone;
+                if (!string.IsNullOrEmpty(preset.Placement)) def.Placement = preset.Placement;
+
+                if (string.IsNullOrEmpty(def.Action))
+                {
+                    def.Action = def.Zone > 0 ? "zone" : "monitor";
+                }
+                if (string.IsNullOrEmpty(def.Monitor))
+                {
+                    def.Monitor = "active";
+                }
+
+                _actionMap[preset.Hotkey] = def;
+
+                try
+                {
+                    var (mod, key) = ParseHotkeyString(preset.Hotkey);
+                    _hook.RegisterHotKey(mod, key);
+                    
+                    string internalKey = $"{mod}+{key}";
+                    _internalHotkeyMapping[internalKey] = preset.Hotkey;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Failed to register hotkey {preset.Hotkey}: {ex.Message}");
                 }
             }
         }
@@ -56,11 +92,17 @@ namespace FancyZonesHotkeys.Core
             string internalKey = $"{e.Modifier}+{e.Key}";
             if (_internalHotkeyMapping.TryGetValue(internalKey, out string? originalHotkey))
             {
-                if (_hotkeyPresetMapping.TryGetValue(originalHotkey, out Preset? preset))
+                if (_actionMap.TryGetValue(originalHotkey, out var def))
                 {
-                    // FancyZones Data Parsing is missing in C# port!
-                    // FancyZones.WindowManager.ApplyZoneToForegroundWindow(zone);
-                    Console.WriteLine($"Hotkey pressed: {preset.Hotkey}. (FancyZones layout logic pending implementation)");
+                    try
+                    {
+                        var data = FancyZonesData.Load();
+                        WindowManager.ApplyAction(def, data);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error executing hotkey {def.Hotkey}: {ex.Message}");
+                    }
                 }
             }
         }
@@ -70,28 +112,27 @@ namespace FancyZonesHotkeys.Core
             ModifierKeys modifiers = ModifierKeys.None;
             Keys key = Keys.None;
 
-            var parts = hotkeyStr.Split('+');
+            var parts = hotkeyStr.Split(new[] { '+' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var part in parts)
             {
-                string p = part.Trim();
-                if (p.Equals("Ctrl", StringComparison.OrdinalIgnoreCase))
-                    modifiers |= ModifierKeys.Control;
-                else if (p.Equals("Alt", StringComparison.OrdinalIgnoreCase))
-                    modifiers |= ModifierKeys.Alt;
-                else if (p.Equals("Shift", StringComparison.OrdinalIgnoreCase))
-                    modifiers |= ModifierKeys.Shift;
-                else if (p.Equals("Win", StringComparison.OrdinalIgnoreCase))
-                    modifiers |= ModifierKeys.Win;
+                string p = part.Trim().ToUpperInvariant();
+                if (p == "CTRL" || p == "CONTROL") modifiers |= ModifierKeys.Control;
+                else if (p == "ALT") modifiers |= ModifierKeys.Alt;
+                else if (p == "SHIFT") modifiers |= ModifierKeys.Shift;
+                else if (p == "WIN" || p == "WINDOWS") modifiers |= ModifierKeys.Win;
                 else
                 {
                     if (Enum.TryParse(p, true, out Keys parsedKey))
                     {
                         key = parsedKey;
                     }
-                    else
+                    else if (p.Length == 1 && char.IsLetter(p[0]))
                     {
-                        // Fallback parsing or ignore
-                        // throw new ArgumentException($"Unknown key component: {p}");
+                        key = (Keys)Enum.Parse(typeof(Keys), p, true);
+                    }
+                    else if (p.Length == 1 && char.IsDigit(p[0]))
+                    {
+                        key = (Keys)Enum.Parse(typeof(Keys), "D" + p, true);
                     }
                 }
             }
