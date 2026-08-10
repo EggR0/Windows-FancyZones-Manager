@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FancyZonesHotkeys")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("2.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("2.0.0+c9d7d555128c131caba0a1605881a1c2791d4f3f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("2.0.0+cd454fc21bddd499de0d71df213530e3156336a7")]
 [assembly: System.Reflection.AssemblyProductAttribute("FancyZonesHotkeys")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FancyZonesHotkeys")]
 [assembly: System.Reflection.AssemblyVersionAttribute("2.0.0.0")]

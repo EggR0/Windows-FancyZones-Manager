@@ -122,17 +122,17 @@ namespace FancyZonesHotkeys.Core
                 else if (p == "WIN" || p == "WINDOWS") modifiers |= ModifierKeys.Win;
                 else
                 {
-                    if (Enum.TryParse(p, true, out Keys parsedKey))
+                    if (p.Length == 1 && char.IsDigit(p[0]))
                     {
-                        key = parsedKey;
+                        key = (Keys)Enum.Parse(typeof(Keys), "D" + p, true);
                     }
                     else if (p.Length == 1 && char.IsLetter(p[0]))
                     {
                         key = (Keys)Enum.Parse(typeof(Keys), p, true);
                     }
-                    else if (p.Length == 1 && char.IsDigit(p[0]))
+                    else if (Enum.TryParse(p, true, out Keys parsedKey))
                     {
-                        key = (Keys)Enum.Parse(typeof(Keys), "D" + p, true);
+                        key = parsedKey;
                     }
                 }
             }
