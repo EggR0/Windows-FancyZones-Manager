@@ -1,5 +1,8 @@
 # FancyZones Hotkeys (v2.0.0)
 
+<div align="center">
+  <img src="assets/fancyzones_hotkey.gif" alt="FancyZones Hotkeys Demo" width="800" />
+</div>
 A native .NET 10 application that manages window positions (FancyZones-style) via global hotkeys.
 
 ## Changes in v2.0.0
